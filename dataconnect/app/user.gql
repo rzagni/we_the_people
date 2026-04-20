@@ -1,0 +1,37 @@
+query GetCurrentUser @auth(level: USER) {
+    appUsers(where: { id: { eq_expr: "auth.uid" } }) {
+        id
+        email
+        profileCompleted
+        region
+        language
+        notificationsEnabled
+    }
+}
+
+mutation UpsertCurrentUser($email: String!) @auth(level: USER) {
+    appUser_upsert(
+        data: {
+            id_expr: "auth.uid"
+            email: $email
+        }
+    )
+}
+
+mutation CompleteOnboarding(
+    $email: String!
+    $region: String!
+    $language: String!
+    $notificationsEnabled: Boolean!
+) @auth(level: USER) {
+    appUser_upsert(
+        data: {
+            id_expr: "auth.uid"
+            email: $email
+            profileCompleted: true
+            region: $region
+            language: $language
+            notificationsEnabled: $notificationsEnabled
+        }
+    )
+}

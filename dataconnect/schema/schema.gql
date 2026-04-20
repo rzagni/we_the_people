@@ -1,0 +1,8 @@
+type AppUser @table(name: "app_user", key: "id") {
+    id: String! @default(expr: "auth.uid")
+    email: String!
+    profileCompleted: Boolean! @default(value: false)
+    region: String
+    language: String
+    notificationsEnabled: Boolean! @default(value: true)
+}
