@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:we_the_people/app/theme/app_colors.dart';
+import 'package:we_the_people/app/theme/app_spacing.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
-import 'package:we_the_people/providers/auth_provider.dart';
 import 'package:we_the_people/providers/preferences_provider.dart';
-import 'package:we_the_people/repositories/user_repository.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -16,12 +16,10 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
   final _regionController = TextEditingController();
-  final _languageController = TextEditingController();
 
   final Set<String> _selectedTopics = <String>{};
   bool _notificationsEnabled = true;
-  bool _isSaving = false;
-  String? _screenError;
+  String? _selectedLanguage;
 
   static const List<String> _availableTopics = <String>[
     'Politics',
@@ -30,10 +28,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Education',
   ];
 
+  static const List<String> _availableLanguages = <String>[
+    'English',
+    'Español',
+    'Português',
+    'Tagalog',
+  ];
+
   @override
   void dispose() {
     _regionController.dispose();
-    _languageController.dispose();
     super.dispose();
   }
 
@@ -47,162 +51,226 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  Future<void> _submit() async {
-    setState(() {
-      _screenError = null;
-    });
-
+  void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = context.read<AuthProvider>();
     final preferencesProvider = context.read<PreferencesProvider>();
-    final userRepository = context.read<UserRepository>();
+    preferencesProvider.updateRegion(_regionController.text.trim());
+    preferencesProvider.updateLanguage(_selectedLanguage!);
+    preferencesProvider.updateTopics(_selectedTopics.toList());
+    preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
 
-    final email = authProvider.currentUser?.email;
-    if (email == null || email.isEmpty) {
-      setState(() {
-        _screenError = 'No authenticated user email found.';
-      });
-      return;
-    }
-
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      preferencesProvider.updateRegion(_regionController.text.trim());
-      preferencesProvider.updateLanguage(_languageController.text.trim());
-      preferencesProvider.updateTopics(_selectedTopics.toList());
-      preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
-
-      await userRepository.completeOnboarding(
-        email: email,
-        region: _regionController.text.trim(),
-        language: _languageController.text.trim(),
-        notificationsEnabled: _notificationsEnabled,
-      );
-
-      if (!mounted) return;
-      context.go('/home');
-    } catch (e) {
-      setState(() {
-        _screenError = 'Failed to save onboarding. Please try again.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
+    context.go('/home');
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Onboarding')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Tell us a little about yourself',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: AppSpacing.lg),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'These preferences will help us send more relevant surveys.',
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
                 ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _regionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Region',
-                    border: OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.next,
-                  validator:
-                      (value) => AppValidators.requiredField(
-                        value,
-                        fieldName: 'Region',
-                      ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _languageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Language',
-                    border: OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.done,
-                  validator:
-                      (value) => AppValidators.requiredField(
-                        value,
-                        fieldName: 'Language',
-                      ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Topics of interest',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                ..._availableTopics.map(
-                  (topic) => CheckboxListTile(
-                    value: _selectedTopics.contains(topic),
-                    title: Text(topic),
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (value) => _toggleTopic(topic, value ?? false),
+                child: const Text(
+                  'YOUR PREFERENCES',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    letterSpacing: 0.4,
                   ),
                 ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  value: _notificationsEnabled,
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Enable notifications'),
-                  subtitle: const Text(
-                    'Allow the app to notify you when a new survey is available.',
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _notificationsEnabled = value;
-                    });
-                  },
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Text(
+                'Help us make surveys more relevant.',
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Set a few preferences so we can send you short questions that match your interests and language.',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textSecondary,
                 ),
-                const SizedBox(height: 16),
-                if (_screenError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      _screenError!,
-                      style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
                     ),
-                  ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : _submit,
-                    child:
-                        _isSaving
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 14),
-                              child: Text('Continue'),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('About you', style: theme.textTheme.titleLarge),
+                      const SizedBox(height: AppSpacing.lg),
+                      TextFormField(
+                        controller: _regionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Region',
+                          hintText: 'e.g. Florida, Ontario, Madrid',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator:
+                            (value) => AppValidators.requiredField(
+                              value,
+                              fieldName: 'Region',
                             ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      DropdownButtonFormField<String>(
+                        value: _selectedLanguage,
+                        decoration: const InputDecoration(
+                          labelText: 'Language',
+                        ),
+                        items:
+                            _availableLanguages
+                                .map(
+                                  (language) => DropdownMenuItem<String>(
+                                    value: language,
+                                    child: Text(language),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedLanguage = value;
+                          });
+                        },
+                        validator:
+                            (value) => AppValidators.requiredField(
+                              value,
+                              fieldName: 'Language',
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Text(
+                        'Topics of interest',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Choose the areas you want to hear about first.',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
+                        children:
+                            _availableTopics.map((topic) {
+                              final isSelected = _selectedTopics.contains(
+                                topic,
+                              );
+
+                              return FilterChip(
+                                label: Text(topic),
+                                selected: isSelected,
+                                showCheckmark: false,
+                                labelStyle: TextStyle(
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                backgroundColor: AppColors.surfaceMuted,
+                                selectedColor: AppColors.primary,
+                                side: BorderSide(
+                                  color:
+                                      isSelected
+                                          ? AppColors.primary
+                                          : AppColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusXl,
+                                  ),
+                                ),
+                                onSelected:
+                                    (value) => _toggleTopic(topic, value),
+                              );
+                            }).toList(),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Enable notifications',
+                                    style: theme.textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Receive a quick alert when a new survey is available.',
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Switch(
+                              value: _notificationsEnabled,
+                              onChanged: (value) {
+                                setState(() {
+                                  _notificationsEnabled = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          child: const Text('Continue'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:we_the_people/app/theme/app_colors.dart';
+import 'package:we_the_people/app/theme/app_spacing.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
+import 'package:we_the_people/features/auth/widgets/auth_scaffold.dart';
 import 'package:we_the_people/providers/auth_provider.dart';
-import 'package:we_the_people/repositories/user_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String? _screenError;
 
   @override
   void dispose() {
@@ -26,15 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    setState(() {
-      _screenError = null;
-    });
-
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    final userRepository = context.read<UserRepository>();
-
     await authProvider.signIn(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -43,24 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (authProvider.errorMessage == null && authProvider.currentUser != null) {
-      try {
-        final userRecord = await userRepository.upsertCurrentUser(
-          email: _emailController.text.trim(),
-        );
-
-        if (!mounted) return;
-
-        if (userRecord.profileCompleted) {
-          context.go('/home');
-        } else {
-          context.go('/onboarding');
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setState(() {
-          _screenError = 'Failed to load your profile. Please try again.';
-        });
-      }
+      context.go('/onboarding');
     }
   }
 
@@ -68,63 +46,77 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: AppValidators.email,
+    return AuthScaffold(
+      eyebrow: 'WELCOME BACK',
+      title: 'Make your voice count.',
+      subtitle:
+          'Sign in to receive short surveys on political and social issues that matter to you.',
+      footer: TextButton(
+        onPressed: () => context.go('/signup'),
+        child: const Text('Create account'),
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Login', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: AppSpacing.lg),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                hintText: 'name@example.com',
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: AppValidators.password,
-              ),
-              const SizedBox(height: 16),
-              if (authProvider.errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    authProvider.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              if (_screenError != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    _screenError!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              SizedBox(
+              validator: AppValidators.email,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+              validator: AppValidators.password,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (authProvider.errorMessage != null)
+              Container(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: authProvider.isLoading ? null : _submit,
-                  child:
-                      authProvider.isLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Text('Login'),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Text(
+                  authProvider.errorMessage!,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              TextButton(
-                onPressed: () => context.go('/signup'),
-                child: const Text('Create account'),
+            if (authProvider.errorMessage != null)
+              const SizedBox(height: AppSpacing.lg),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: authProvider.isLoading ? null : _submit,
+                child:
+                    authProvider.isLoading
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Text('Login'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

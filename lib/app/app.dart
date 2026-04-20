@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:we_the_people/app/router.dart';
+import 'package:we_the_people/app/theme/app_theme.dart';
 
 class WeThePeopleApp extends StatelessWidget {
   const WeThePeopleApp({super.key});
@@ -10,10 +10,7 @@ class WeThePeopleApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'We the People',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       routerConfig: appRouter,
     );
   }
