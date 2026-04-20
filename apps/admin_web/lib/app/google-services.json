@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "391033599983",
+    "project_id": "we-the-people-f1776",
+    "storage_bucket": "we-the-people-f1776.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:391033599983:android:9125646962c933d753281a",
+        "android_client_info": {
+          "package_name": "com.zagni.wethepeople"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBECmlre4JC3ko-fAqIc5y2P-tD6N--5Qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

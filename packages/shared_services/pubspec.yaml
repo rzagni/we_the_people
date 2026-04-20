@@ -1,0 +1,26 @@
+name: shared_services
+description: "We the people shared service layer"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0-323.0.dev
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  firebase_data_connect: ^0.3.0
+  firebase_messaging: ^16.2.0
+  http: ^1.6.0
+  shared_models:
+    path: ../shared_models
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
