@@ -1,0 +1,129 @@
+mutation CreateSurvey(
+    $id: String!
+    $question: String!
+    $status: SurveyStatus!
+    $createdBy: String!
+    $language: String
+    $region: String
+    $topic: String
+) @auth(level: USER) {
+    survey_insert(
+        data: {
+            id: $id
+            question: $question
+            status: $status
+            createdBy: $createdBy
+            language: $language
+            region: $region
+            topic: $topic
+        }
+    )
+}
+
+query GetSurvey($id: String!) @auth(level: USER) {
+    surveys(where: { id: { eq: $id } }) {
+        id
+        question
+        status
+        createdBy
+        language
+        region
+        topic
+    }
+}
+
+query ListSurveys @auth(level: USER) {
+    surveys {
+        id
+        question
+        status
+        createdBy
+        language
+        region
+        topic
+    }
+}
+
+mutation RegisterUserDevice(
+    $id: String!
+    $userId: String!
+    $fcmToken: String!
+    $platform: DevicePlatform!
+    $notificationsEnabled: Boolean!
+) @auth(level: USER) {
+    userDevice_upsert(
+        data: {
+            id: $id
+            userId: $userId
+            fcmToken: $fcmToken
+            platform: $platform
+            notificationsEnabled: $notificationsEnabled
+        }
+    )
+}
+
+query ListUserDevicesByUser($userId: String!) @auth(level: USER) {
+    userDevices(where: { userId: { eq: $userId } }) {
+        id
+        userId
+        fcmToken
+        platform
+        notificationsEnabled
+    }
+}
+
+mutation CreateSurveyDelivery(
+    $id: String!
+    $surveyId: String!
+    $userId: String!
+    $deviceId: String!
+    $status: DeliveryStatus!
+) @auth(level: USER) {
+    surveyDelivery_insert(
+        data: {
+            id: $id
+            surveyId: $surveyId
+            userId: $userId
+            deviceId: $deviceId
+            status: $status
+        }
+    )
+}
+
+query ListSurveyDeliveriesBySurvey($surveyId: String!) @auth(level: USER) {
+    surveyDeliveries(where: { surveyId: { eq: $surveyId } }) {
+        id
+        surveyId
+        userId
+        deviceId
+        status
+    }
+}
+
+mutation SubmitSurveyResponse(
+    $id: String!
+    $surveyId: String!
+    $userId: String!
+    $deliveryId: String!
+    $answer: SurveyAnswer!
+) @auth(level: USER) {
+    surveyResponse_insert(
+        data: {
+            id: $id
+            surveyId: $surveyId
+            userId: $userId
+            deliveryId: $deliveryId
+            answer: $answer
+        }
+    )
+}
+
+query ListSurveyResponsesBySurvey($surveyId: String!) @auth(level: USER) {
+    surveyResponses(where: { surveyId: { eq: $surveyId } }) {
+        id
+        surveyId
+        userId
+        deliveryId
+        answer
+    }
+}

@@ -6,3 +6,64 @@ type AppUser @table(name: "app_user", key: "id") {
     language: String
     notificationsEnabled: Boolean! @default(value: true)
 }
+
+enum SurveyStatus {
+    DRAFT
+    SCHEDULED
+    SENT
+    CLOSED
+}
+
+enum DeliveryStatus {
+    PENDING
+    SENT
+    OPENED
+    ANSWERED
+    FAILED
+}
+
+enum SurveyAnswer {
+    YES
+    NO
+    NOT_SURE
+}
+
+enum DevicePlatform {
+    ANDROID
+    IOS
+    WEB
+}
+
+type Survey @table(name: "survey", key: "id") {
+    id: String!
+    question: String!
+    status: SurveyStatus!
+    createdBy: String!
+    language: String
+    region: String
+    topic: String
+}
+
+type UserDevice @table(name: "user_device", key: "id") {
+    id: String!
+    userId: String!
+    fcmToken: String!
+    platform: DevicePlatform!
+    notificationsEnabled: Boolean!
+}
+
+type SurveyDelivery @table(name: "survey_delivery", key: "id") {
+    id: String!
+    surveyId: String!
+    userId: String!
+    deviceId: String!
+    status: DeliveryStatus!
+}
+
+type SurveyResponse @table(name: "survey_response", key: "id") {
+    id: String!
+    surveyId: String!
+    userId: String!
+    deliveryId: String!
+    answer: SurveyAnswer!
+}

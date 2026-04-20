@@ -9,11 +9,14 @@ import 'package:we_the_people/providers/user_provider.dart';
 import 'package:we_the_people/repositories/auth_repository.dart';
 import 'package:we_the_people/repositories/preferences_repository.dart';
 import 'package:we_the_people/repositories/user_repository.dart';
+import 'package:we_the_people/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await NotificationService.instance.initialize();
 
   runApp(const Bootstrap());
 }

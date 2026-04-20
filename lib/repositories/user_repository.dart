@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:we_the_people/dataconnect_generated/generated.dart';
+import 'package:we_the_people/dataconnect_generated/app.dart';
 
 class AppUserRecord {
   final String id;

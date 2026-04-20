@@ -1,4 +1,4 @@
-part of 'generated.dart';
+part of 'app.dart';
 
 class CompleteOnboardingVariablesBuilder {
   String email;
