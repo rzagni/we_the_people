@@ -18,6 +18,7 @@ dependencies:
   go_router: ^16.1.0
   firebase_data_connect: ^0.3.0
   firebase_messaging: ^16.2.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

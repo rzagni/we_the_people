@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (authProvider.errorMessage == null && authProvider.currentUser != null) {
-      context.go('/onboarding');
+      context.go('/');
     }
   }
 

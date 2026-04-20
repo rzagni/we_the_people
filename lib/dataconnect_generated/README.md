@@ -21,11 +21,11 @@ AppConnector.instance.dataConnect.useDataConnectEmulator(host, port);
 You can also call queries and mutations by using the connector class.
 ## Queries
 
-### GetSurvey
+### GetSurveyById
 #### Required Arguments
 ```dart
 String id = ...;
-AppConnector.instance.getSurvey(
+AppConnector.instance.getSurveyById(
   id: id,
 ).execute();
 ```
@@ -33,7 +33,7 @@ AppConnector.instance.getSurvey(
 
 
 #### Return Type
-`execute()` returns a `QueryResult<GetSurveyData, GetSurveyVariables>`
+`execute()` returns a `QueryResult<GetSurveyByIdData, GetSurveyByIdVariables>`
 ```dart
 /// Result of an Operation Request (query/mutation).
 class OperationResult<Data, Variables> {
@@ -48,10 +48,10 @@ class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
   QueryResult(super.dataConnect, super.data, super.ref);
 }
 
-final result = await AppConnector.instance.getSurvey(
+final result = await AppConnector.instance.getSurveyById(
   id: id,
 );
-GetSurveyData data = result.data;
+GetSurveyByIdData data = result.data;
 final ref = result.ref;
 ```
 
@@ -61,7 +61,7 @@ An example of how to use the `Ref` object is shown below:
 ```dart
 String id = ...;
 
-final ref = AppConnector.instance.getSurvey(
+final ref = AppConnector.instance.getSurveyById(
   id: id,
 ).ref();
 ref.execute();
@@ -111,19 +111,17 @@ ref.subscribe(...);
 ```
 
 
-### ListUserDevicesByUser
+### ListMyUserDevices
 #### Required Arguments
 ```dart
-String userId = ...;
-AppConnector.instance.listUserDevicesByUser(
-  userId: userId,
-).execute();
+// No required arguments
+AppConnector.instance.listMyUserDevices().execute();
 ```
 
 
 
 #### Return Type
-`execute()` returns a `QueryResult<ListUserDevicesByUserData, ListUserDevicesByUserVariables>`
+`execute()` returns a `QueryResult<ListMyUserDevicesData, void>`
 ```dart
 /// Result of an Operation Request (query/mutation).
 class OperationResult<Data, Variables> {
@@ -138,10 +136,8 @@ class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
   QueryResult(super.dataConnect, super.data, super.ref);
 }
 
-final result = await AppConnector.instance.listUserDevicesByUser(
-  userId: userId,
-);
-ListUserDevicesByUserData data = result.data;
+final result = await AppConnector.instance.listMyUserDevices();
+ListMyUserDevicesData data = result.data;
 final ref = result.ref;
 ```
 
@@ -149,60 +145,7 @@ final ref = result.ref;
 Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
 An example of how to use the `Ref` object is shown below:
 ```dart
-String userId = ...;
-
-final ref = AppConnector.instance.listUserDevicesByUser(
-  userId: userId,
-).ref();
-ref.execute();
-
-ref.subscribe(...);
-```
-
-
-### ListSurveyDeliveriesBySurvey
-#### Required Arguments
-```dart
-String surveyId = ...;
-AppConnector.instance.listSurveyDeliveriesBySurvey(
-  surveyId: surveyId,
-).execute();
-```
-
-
-
-#### Return Type
-`execute()` returns a `QueryResult<ListSurveyDeliveriesBySurveyData, ListSurveyDeliveriesBySurveyVariables>`
-```dart
-/// Result of an Operation Request (query/mutation).
-class OperationResult<Data, Variables> {
-  OperationResult(this.dataConnect, this.data, this.ref);
-  Data data;
-  OperationRef<Data, Variables> ref;
-  FirebaseDataConnect dataConnect;
-}
-
-/// Result of a query request. Created to hold extra variables in the future.
-class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
-  QueryResult(super.dataConnect, super.data, super.ref);
-}
-
-final result = await AppConnector.instance.listSurveyDeliveriesBySurvey(
-  surveyId: surveyId,
-);
-ListSurveyDeliveriesBySurveyData data = result.data;
-final ref = result.ref;
-```
-
-#### Getting the Ref
-Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
-An example of how to use the `Ref` object is shown below:
-```dart
-String surveyId = ...;
-
-final ref = AppConnector.instance.listSurveyDeliveriesBySurvey(
-  surveyId: surveyId,
-).ref();
+final ref = AppConnector.instance.listMyUserDevices().ref();
 ref.execute();
 
 ref.subscribe(...);
@@ -251,6 +194,55 @@ String surveyId = ...;
 
 final ref = AppConnector.instance.listSurveyResponsesBySurvey(
   surveyId: surveyId,
+).ref();
+ref.execute();
+
+ref.subscribe(...);
+```
+
+
+### GetMySurveyResponseByDelivery
+#### Required Arguments
+```dart
+String deliveryId = ...;
+AppConnector.instance.getMySurveyResponseByDelivery(
+  deliveryId: deliveryId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `QueryResult<GetMySurveyResponseByDeliveryData, GetMySurveyResponseByDeliveryVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+/// Result of a query request. Created to hold extra variables in the future.
+class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
+  QueryResult(super.dataConnect, super.data, super.ref);
+}
+
+final result = await AppConnector.instance.getMySurveyResponseByDelivery(
+  deliveryId: deliveryId,
+);
+GetMySurveyResponseByDeliveryData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String deliveryId = ...;
+
+final ref = AppConnector.instance.getMySurveyResponseByDelivery(
+  deliveryId: deliveryId,
 ).ref();
 ref.execute();
 
@@ -392,13 +384,11 @@ ref.execute();
 #### Required Arguments
 ```dart
 String id = ...;
-String userId = ...;
 String fcmToken = ...;
 DevicePlatform platform = ...;
 bool notificationsEnabled = ...;
 AppConnector.instance.registerUserDevice(
   id: id,
-  userId: userId,
   fcmToken: fcmToken,
   platform: platform,
   notificationsEnabled: notificationsEnabled,
@@ -420,7 +410,6 @@ class OperationResult<Data, Variables> {
 
 final result = await AppConnector.instance.registerUserDevice(
   id: id,
-  userId: userId,
   fcmToken: fcmToken,
   platform: platform,
   notificationsEnabled: notificationsEnabled,
@@ -434,14 +423,12 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String id = ...;
-String userId = ...;
 String fcmToken = ...;
 DevicePlatform platform = ...;
 bool notificationsEnabled = ...;
 
 final ref = AppConnector.instance.registerUserDevice(
   id: id,
-  userId: userId,
   fcmToken: fcmToken,
   platform: platform,
   notificationsEnabled: notificationsEnabled,
@@ -512,18 +499,58 @@ ref.execute();
 ```
 
 
+### MarkSurveyDeliveryOpened
+#### Required Arguments
+```dart
+String deliveryId = ...;
+AppConnector.instance.markSurveyDeliveryOpened(
+  deliveryId: deliveryId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<MarkSurveyDeliveryOpenedData, MarkSurveyDeliveryOpenedVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await AppConnector.instance.markSurveyDeliveryOpened(
+  deliveryId: deliveryId,
+);
+MarkSurveyDeliveryOpenedData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String deliveryId = ...;
+
+final ref = AppConnector.instance.markSurveyDeliveryOpened(
+  deliveryId: deliveryId,
+).ref();
+ref.execute();
+```
+
+
 ### SubmitSurveyResponse
 #### Required Arguments
 ```dart
 String id = ...;
 String surveyId = ...;
-String userId = ...;
 String deliveryId = ...;
 SurveyAnswer answer = ...;
 AppConnector.instance.submitSurveyResponse(
   id: id,
   surveyId: surveyId,
-  userId: userId,
   deliveryId: deliveryId,
   answer: answer,
 ).execute();
@@ -545,7 +572,6 @@ class OperationResult<Data, Variables> {
 final result = await AppConnector.instance.submitSurveyResponse(
   id: id,
   surveyId: surveyId,
-  userId: userId,
   deliveryId: deliveryId,
   answer: answer,
 );
@@ -559,16 +585,56 @@ An example of how to use the `Ref` object is shown below:
 ```dart
 String id = ...;
 String surveyId = ...;
-String userId = ...;
 String deliveryId = ...;
 SurveyAnswer answer = ...;
 
 final ref = AppConnector.instance.submitSurveyResponse(
   id: id,
   surveyId: surveyId,
-  userId: userId,
   deliveryId: deliveryId,
   answer: answer,
+).ref();
+ref.execute();
+```
+
+
+### MarkSurveyDeliveryAnswered
+#### Required Arguments
+```dart
+String deliveryId = ...;
+AppConnector.instance.markSurveyDeliveryAnswered(
+  deliveryId: deliveryId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<MarkSurveyDeliveryAnsweredData, MarkSurveyDeliveryAnsweredVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await AppConnector.instance.markSurveyDeliveryAnswered(
+  deliveryId: deliveryId,
+);
+MarkSurveyDeliveryAnsweredData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String deliveryId = ...;
+
+final ref = AppConnector.instance.markSurveyDeliveryAnswered(
+  deliveryId: deliveryId,
 ).ref();
 ref.execute();
 ```
@@ -620,12 +686,16 @@ ref.execute();
 #### Required Arguments
 ```dart
 String email = ...;
-String region = ...;
+String zipCode = ...;
+String city = ...;
+String state = ...;
 String language = ...;
 bool notificationsEnabled = ...;
 AppConnector.instance.completeOnboarding(
   email: email,
-  region: region,
+  zipCode: zipCode,
+  city: city,
+  state: state,
   language: language,
   notificationsEnabled: notificationsEnabled,
 ).execute();
@@ -646,7 +716,9 @@ class OperationResult<Data, Variables> {
 
 final result = await AppConnector.instance.completeOnboarding(
   email: email,
-  region: region,
+  zipCode: zipCode,
+  city: city,
+  state: state,
   language: language,
   notificationsEnabled: notificationsEnabled,
 );
@@ -659,13 +731,17 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String email = ...;
-String region = ...;
+String zipCode = ...;
+String city = ...;
+String state = ...;
 String language = ...;
 bool notificationsEnabled = ...;
 
 final ref = AppConnector.instance.completeOnboarding(
   email: email,
-  region: region,
+  zipCode: zipCode,
+  city: city,
+  state: state,
   language: language,
   notificationsEnabled: notificationsEnabled,
 ).ref();

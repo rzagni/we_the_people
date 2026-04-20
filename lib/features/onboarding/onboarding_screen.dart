@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:we_the_people/app/theme/app_colors.dart';
 import 'package:we_the_people/app/theme/app_spacing.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
+import 'package:we_the_people/dataconnect_generated/app.dart';
+import 'package:we_the_people/providers/auth_provider.dart';
 import 'package:we_the_people/providers/preferences_provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -15,10 +17,13 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _regionController = TextEditingController();
+  final _zipCodeController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
 
   final Set<String> _selectedTopics = <String>{};
   bool _notificationsEnabled = true;
+  bool _isSaving = false;
   String? _selectedLanguage;
 
   static const List<String> _availableTopics = <String>[
@@ -37,7 +42,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   void dispose() {
-    _regionController.dispose();
+    _zipCodeController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
     super.dispose();
   }
 
@@ -51,16 +58,60 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final authProvider = context.read<AuthProvider>();
     final preferencesProvider = context.read<PreferencesProvider>();
-    preferencesProvider.updateRegion(_regionController.text.trim());
-    preferencesProvider.updateLanguage(_selectedLanguage!);
-    preferencesProvider.updateTopics(_selectedTopics.toList());
-    preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
+    final email = authProvider.currentUser?.email;
 
-    context.go('/home');
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to determine current user email.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      await AppConnector.instance
+          .completeOnboarding(
+            email: email,
+            zipCode: _zipCodeController.text.trim(),
+            city: _cityController.text.trim(),
+            state: _stateController.text.trim(),
+            language: _selectedLanguage!,
+            notificationsEnabled: _notificationsEnabled,
+          )
+          .execute();
+
+      preferencesProvider.updateZipCode(_zipCodeController.text.trim());
+      preferencesProvider.updateCity(_cityController.text.trim());
+      preferencesProvider.updateState(_stateController.text.trim());
+      preferencesProvider.updateLanguage(_selectedLanguage!);
+      preferencesProvider.updateTopics(_selectedTopics.toList());
+      preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
+
+      if (!mounted) return;
+      context.go('/home');
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save onboarding: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -101,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Set a few preferences so we can send you short questions that match your interests and language.',
+                'Set a few preferences so we can send you short questions that match your interests and location.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -130,16 +181,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       Text('About you', style: theme.textTheme.titleLarge),
                       const SizedBox(height: AppSpacing.lg),
                       TextFormField(
-                        controller: _regionController,
+                        controller: _zipCodeController,
+                        keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          labelText: 'Region',
-                          hintText: 'e.g. Florida, Ontario, Madrid',
+                          labelText: 'ZIP code',
+                          hintText: 'e.g. 33101',
                         ),
-                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          final trimmed = value?.trim() ?? '';
+                          if (trimmed.isEmpty) {
+                            return 'ZIP code is required';
+                          }
+                          if (trimmed.length < 5) {
+                            return 'Enter a valid ZIP code';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      TextFormField(
+                        controller: _cityController,
+                        decoration: const InputDecoration(labelText: 'City'),
                         validator:
                             (value) => AppValidators.requiredField(
                               value,
-                              fieldName: 'Region',
+                              fieldName: 'City',
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      TextFormField(
+                        controller: _stateController,
+                        decoration: const InputDecoration(labelText: 'State'),
+                        validator:
+                            (value) => AppValidators.requiredField(
+                              value,
+                              fieldName: 'State',
                             ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -174,96 +250,45 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        'Choose the areas you want to hear about first.',
-                        style: theme.textTheme.bodyMedium,
+                      ..._availableTopics.map(
+                        (topic) => CheckboxListTile(
+                          value: _selectedTopics.contains(topic),
+                          title: Text(topic),
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged:
+                              (value) => _toggleTopic(topic, value ?? false),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.sm,
-                        children:
-                            _availableTopics.map((topic) {
-                              final isSelected = _selectedTopics.contains(
-                                topic,
-                              );
-
-                              return FilterChip(
-                                label: Text(topic),
-                                selected: isSelected,
-                                showCheckmark: false,
-                                labelStyle: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Colors.white
-                                          : AppColors.textPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                backgroundColor: AppColors.surfaceMuted,
-                                selectedColor: AppColors.primary,
-                                side: BorderSide(
-                                  color:
-                                      isSelected
-                                          ? AppColors.primary
-                                          : AppColors.border,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppSpacing.radiusXl,
-                                  ),
-                                ),
-                                onSelected:
-                                    (value) => _toggleTopic(topic, value),
-                              );
-                            }).toList(),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceMuted,
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.radiusMd,
-                          ),
-                          border: Border.all(color: AppColors.border),
+                      SwitchListTile(
+                        value: _notificationsEnabled,
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Enable notifications'),
+                        subtitle: const Text(
+                          'Receive alerts when a new survey is available.',
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Enable notifications',
-                                    style: theme.textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(height: AppSpacing.xs),
-                                  Text(
-                                    'Receive a quick alert when a new survey is available.',
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Switch(
-                              value: _notificationsEnabled,
-                              onChanged: (value) {
-                                setState(() {
-                                  _notificationsEnabled = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _notificationsEnabled = value;
+                          });
+                        },
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text('Continue'),
+                          onPressed: _isSaving ? null : _submit,
+                          child:
+                              _isSaving
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Text('Continue'),
                         ),
                       ),
                     ],

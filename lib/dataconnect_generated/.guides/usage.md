@@ -2,15 +2,15 @@
 
 ```dart
 AppConnector.instance.CreateSurvey(createSurveyVariables).execute();
-AppConnector.instance.GetSurvey(getSurveyVariables).execute();
+AppConnector.instance.GetSurveyById(getSurveyByIdVariables).execute();
 AppConnector.instance.ListSurveys().execute();
 AppConnector.instance.RegisterUserDevice(registerUserDeviceVariables).execute();
-AppConnector.instance.ListUserDevicesByUser(listUserDevicesByUserVariables).execute();
+AppConnector.instance.ListMyUserDevices().execute();
 AppConnector.instance.CreateSurveyDelivery(createSurveyDeliveryVariables).execute();
-AppConnector.instance.ListSurveyDeliveriesBySurvey(listSurveyDeliveriesBySurveyVariables).execute();
-AppConnector.instance.SubmitSurveyResponse(submitSurveyResponseVariables).execute();
 AppConnector.instance.ListSurveyResponsesBySurvey(listSurveyResponsesBySurveyVariables).execute();
-AppConnector.instance.GetCurrentUser().execute();
+AppConnector.instance.MarkSurveyDeliveryOpened(markSurveyDeliveryOpenedVariables).execute();
+AppConnector.instance.SubmitSurveyResponse(submitSurveyResponseVariables).execute();
+AppConnector.instance.MarkSurveyDeliveryAnswered(markSurveyDeliveryAnsweredVariables).execute();
 
 ```
 

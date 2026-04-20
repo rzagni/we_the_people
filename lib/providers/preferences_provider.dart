@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:we_the_people/models/user_preferences.dart';
 
 class PreferencesProvider extends ChangeNotifier {
@@ -11,8 +10,18 @@ class PreferencesProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  void updateRegion(String value) {
-    _preferences = _preferences.copyWith(region: value);
+  void updateZipCode(String value) {
+    _preferences = _preferences.copyWith(zipCode: value);
+    notifyListeners();
+  }
+
+  void updateCity(String value) {
+    _preferences = _preferences.copyWith(city: value);
+    notifyListeners();
+  }
+
+  void updateState(String value) {
+    _preferences = _preferences.copyWith(state: value);
     notifyListeners();
   }
 

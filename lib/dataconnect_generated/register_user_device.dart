@@ -2,13 +2,12 @@ part of 'app.dart';
 
 class RegisterUserDeviceVariablesBuilder {
   String id;
-  String userId;
   String fcmToken;
   DevicePlatform platform;
   bool notificationsEnabled;
 
   final FirebaseDataConnect _dataConnect;
-  RegisterUserDeviceVariablesBuilder(this._dataConnect, {required  this.id,required  this.userId,required  this.fcmToken,required  this.platform,required  this.notificationsEnabled,});
+  RegisterUserDeviceVariablesBuilder(this._dataConnect, {required  this.id,required  this.fcmToken,required  this.platform,required  this.notificationsEnabled,});
   Deserializer<RegisterUserDeviceData> dataDeserializer = (dynamic json)  => RegisterUserDeviceData.fromJson(jsonDecode(json));
   Serializer<RegisterUserDeviceVariables> varsSerializer = (RegisterUserDeviceVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<RegisterUserDeviceData, RegisterUserDeviceVariables>> execute() {
@@ -16,7 +15,7 @@ class RegisterUserDeviceVariablesBuilder {
   }
 
   MutationRef<RegisterUserDeviceData, RegisterUserDeviceVariables> ref() {
-    RegisterUserDeviceVariables vars= RegisterUserDeviceVariables(id: id,userId: userId,fcmToken: fcmToken,platform: platform,notificationsEnabled: notificationsEnabled,);
+    RegisterUserDeviceVariables vars= RegisterUserDeviceVariables(id: id,fcmToken: fcmToken,platform: platform,notificationsEnabled: notificationsEnabled,);
     return _dataConnect.mutation("RegisterUserDevice", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -92,7 +91,6 @@ class RegisterUserDeviceData {
 @immutable
 class RegisterUserDeviceVariables {
   final String id;
-  final String userId;
   final String fcmToken;
   final DevicePlatform platform;
   final bool notificationsEnabled;
@@ -100,7 +98,6 @@ class RegisterUserDeviceVariables {
   RegisterUserDeviceVariables.fromJson(Map<String, dynamic> json):
   
   id = nativeFromJson<String>(json['id']),
-  userId = nativeFromJson<String>(json['userId']),
   fcmToken = nativeFromJson<String>(json['fcmToken']),
   platform = DevicePlatform.values.byName(json['platform']),
   notificationsEnabled = nativeFromJson<bool>(json['notificationsEnabled']);
@@ -115,20 +112,18 @@ class RegisterUserDeviceVariables {
 
     final RegisterUserDeviceVariables otherTyped = other as RegisterUserDeviceVariables;
     return id == otherTyped.id && 
-    userId == otherTyped.userId && 
     fcmToken == otherTyped.fcmToken && 
     platform == otherTyped.platform && 
     notificationsEnabled == otherTyped.notificationsEnabled;
     
   }
   @override
-  int get hashCode => Object.hashAll([id.hashCode, userId.hashCode, fcmToken.hashCode, platform.hashCode, notificationsEnabled.hashCode]);
+  int get hashCode => Object.hashAll([id.hashCode, fcmToken.hashCode, platform.hashCode, notificationsEnabled.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['id'] = nativeToJson<String>(id);
-    json['userId'] = nativeToJson<String>(userId);
     json['fcmToken'] = nativeToJson<String>(fcmToken);
     json['platform'] = 
     platform.name
@@ -139,7 +134,6 @@ class RegisterUserDeviceVariables {
 
   RegisterUserDeviceVariables({
     required this.id,
-    required this.userId,
     required this.fcmToken,
     required this.platform,
     required this.notificationsEnabled,

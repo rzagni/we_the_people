@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:we_the_people/app/app.dart';
@@ -16,7 +17,9 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await NotificationService.instance.initialize();
+  if (!kIsWeb) {
+    await NotificationService.instance.initialize();
+  }
 
   runApp(const Bootstrap());
 }

@@ -3,7 +3,9 @@ query GetCurrentUser @auth(level: USER) {
         id
         email
         profileCompleted
-        region
+        zipCode
+        city
+        state
         language
         notificationsEnabled
     }
@@ -20,7 +22,9 @@ mutation UpsertCurrentUser($email: String!) @auth(level: USER) {
 
 mutation CompleteOnboarding(
     $email: String!
-    $region: String!
+    $zipCode: String!
+    $city: String!
+    $state: String!
     $language: String!
     $notificationsEnabled: Boolean!
 ) @auth(level: USER) {
@@ -29,7 +33,9 @@ mutation CompleteOnboarding(
             id_expr: "auth.uid"
             email: $email
             profileCompleted: true
-            region: $region
+            zipCode: $zipCode
+            city: $city
+            state: $state
             language: $language
             notificationsEnabled: $notificationsEnabled
         }

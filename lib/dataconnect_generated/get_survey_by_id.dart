@@ -1,24 +1,24 @@
 part of 'app.dart';
 
-class GetSurveyVariablesBuilder {
+class GetSurveyByIdVariablesBuilder {
   String id;
 
   final FirebaseDataConnect _dataConnect;
-  GetSurveyVariablesBuilder(this._dataConnect, {required  this.id,});
-  Deserializer<GetSurveyData> dataDeserializer = (dynamic json)  => GetSurveyData.fromJson(jsonDecode(json));
-  Serializer<GetSurveyVariables> varsSerializer = (GetSurveyVariables vars) => jsonEncode(vars.toJson());
-  Future<QueryResult<GetSurveyData, GetSurveyVariables>> execute({QueryFetchPolicy fetchPolicy = QueryFetchPolicy.preferCache}) {
+  GetSurveyByIdVariablesBuilder(this._dataConnect, {required  this.id,});
+  Deserializer<GetSurveyByIdData> dataDeserializer = (dynamic json)  => GetSurveyByIdData.fromJson(jsonDecode(json));
+  Serializer<GetSurveyByIdVariables> varsSerializer = (GetSurveyByIdVariables vars) => jsonEncode(vars.toJson());
+  Future<QueryResult<GetSurveyByIdData, GetSurveyByIdVariables>> execute({QueryFetchPolicy fetchPolicy = QueryFetchPolicy.preferCache}) {
     return ref().execute(fetchPolicy: fetchPolicy);
   }
 
-  QueryRef<GetSurveyData, GetSurveyVariables> ref() {
-    GetSurveyVariables vars= GetSurveyVariables(id: id,);
-    return _dataConnect.query("GetSurvey", dataDeserializer, varsSerializer, vars);
+  QueryRef<GetSurveyByIdData, GetSurveyByIdVariables> ref() {
+    GetSurveyByIdVariables vars= GetSurveyByIdVariables(id: id,);
+    return _dataConnect.query("GetSurveyById", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
-class GetSurveySurveys {
+class GetSurveyByIdSurveys {
   final String id;
   final String question;
   final EnumValue<SurveyStatus> status;
@@ -26,7 +26,7 @@ class GetSurveySurveys {
   final String? language;
   final String? region;
   final String? topic;
-  GetSurveySurveys.fromJson(dynamic json):
+  GetSurveyByIdSurveys.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   question = nativeFromJson<String>(json['question']),
@@ -44,7 +44,7 @@ class GetSurveySurveys {
       return false;
     }
 
-    final GetSurveySurveys otherTyped = other as GetSurveySurveys;
+    final GetSurveyByIdSurveys otherTyped = other as GetSurveyByIdSurveys;
     return id == otherTyped.id && 
     question == otherTyped.question && 
     status == otherTyped.status && 
@@ -78,7 +78,7 @@ class GetSurveySurveys {
     return json;
   }
 
-  GetSurveySurveys({
+  GetSurveyByIdSurveys({
     required this.id,
     required this.question,
     required this.status,
@@ -90,12 +90,12 @@ class GetSurveySurveys {
 }
 
 @immutable
-class GetSurveyData {
-  final List<GetSurveySurveys> surveys;
-  GetSurveyData.fromJson(dynamic json):
+class GetSurveyByIdData {
+  final List<GetSurveyByIdSurveys> surveys;
+  GetSurveyByIdData.fromJson(dynamic json):
   
   surveys = (json['surveys'] as List<dynamic>)
-        .map((e) => GetSurveySurveys.fromJson(e))
+        .map((e) => GetSurveyByIdSurveys.fromJson(e))
         .toList();
   @override
   bool operator ==(Object other) {
@@ -106,7 +106,7 @@ class GetSurveyData {
       return false;
     }
 
-    final GetSurveyData otherTyped = other as GetSurveyData;
+    final GetSurveyByIdData otherTyped = other as GetSurveyByIdData;
     return surveys == otherTyped.surveys;
     
   }
@@ -120,16 +120,16 @@ class GetSurveyData {
     return json;
   }
 
-  GetSurveyData({
+  GetSurveyByIdData({
     required this.surveys,
   });
 }
 
 @immutable
-class GetSurveyVariables {
+class GetSurveyByIdVariables {
   final String id;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
-  GetSurveyVariables.fromJson(Map<String, dynamic> json):
+  GetSurveyByIdVariables.fromJson(Map<String, dynamic> json):
   
   id = nativeFromJson<String>(json['id']);
   @override
@@ -141,7 +141,7 @@ class GetSurveyVariables {
       return false;
     }
 
-    final GetSurveyVariables otherTyped = other as GetSurveyVariables;
+    final GetSurveyByIdVariables otherTyped = other as GetSurveyByIdVariables;
     return id == otherTyped.id;
     
   }
@@ -155,7 +155,7 @@ class GetSurveyVariables {
     return json;
   }
 
-  GetSurveyVariables({
+  GetSurveyByIdVariables({
     required this.id,
   });
 }

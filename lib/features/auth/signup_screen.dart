@@ -40,7 +40,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!mounted) return;
 
     if (authProvider.errorMessage == null && authProvider.currentUser != null) {
-      context.go('/onboarding');
+      context.go('/');
     }
   }
 

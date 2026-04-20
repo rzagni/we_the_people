@@ -21,7 +21,9 @@ class GetCurrentUserAppUsers {
   final String id;
   final String email;
   final bool profileCompleted;
-  final String? region;
+  final String? zipCode;
+  final String? city;
+  final String? state;
   final String? language;
   final bool notificationsEnabled;
   GetCurrentUserAppUsers.fromJson(dynamic json):
@@ -29,7 +31,9 @@ class GetCurrentUserAppUsers {
   id = nativeFromJson<String>(json['id']),
   email = nativeFromJson<String>(json['email']),
   profileCompleted = nativeFromJson<bool>(json['profileCompleted']),
-  region = json['region'] == null ? null : nativeFromJson<String>(json['region']),
+  zipCode = json['zipCode'] == null ? null : nativeFromJson<String>(json['zipCode']),
+  city = json['city'] == null ? null : nativeFromJson<String>(json['city']),
+  state = json['state'] == null ? null : nativeFromJson<String>(json['state']),
   language = json['language'] == null ? null : nativeFromJson<String>(json['language']),
   notificationsEnabled = nativeFromJson<bool>(json['notificationsEnabled']);
   @override
@@ -45,13 +49,15 @@ class GetCurrentUserAppUsers {
     return id == otherTyped.id && 
     email == otherTyped.email && 
     profileCompleted == otherTyped.profileCompleted && 
-    region == otherTyped.region && 
+    zipCode == otherTyped.zipCode && 
+    city == otherTyped.city && 
+    state == otherTyped.state && 
     language == otherTyped.language && 
     notificationsEnabled == otherTyped.notificationsEnabled;
     
   }
   @override
-  int get hashCode => Object.hashAll([id.hashCode, email.hashCode, profileCompleted.hashCode, region.hashCode, language.hashCode, notificationsEnabled.hashCode]);
+  int get hashCode => Object.hashAll([id.hashCode, email.hashCode, profileCompleted.hashCode, zipCode.hashCode, city.hashCode, state.hashCode, language.hashCode, notificationsEnabled.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -59,8 +65,14 @@ class GetCurrentUserAppUsers {
     json['id'] = nativeToJson<String>(id);
     json['email'] = nativeToJson<String>(email);
     json['profileCompleted'] = nativeToJson<bool>(profileCompleted);
-    if (region != null) {
-      json['region'] = nativeToJson<String?>(region);
+    if (zipCode != null) {
+      json['zipCode'] = nativeToJson<String?>(zipCode);
+    }
+    if (city != null) {
+      json['city'] = nativeToJson<String?>(city);
+    }
+    if (state != null) {
+      json['state'] = nativeToJson<String?>(state);
     }
     if (language != null) {
       json['language'] = nativeToJson<String?>(language);
@@ -73,7 +85,9 @@ class GetCurrentUserAppUsers {
     required this.id,
     required this.email,
     required this.profileCompleted,
-    this.region,
+    this.zipCode,
+    this.city,
+    this.state,
     this.language,
     required this.notificationsEnabled,
   });

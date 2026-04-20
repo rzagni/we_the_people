@@ -2,12 +2,14 @@ part of 'app.dart';
 
 class CompleteOnboardingVariablesBuilder {
   String email;
-  String region;
+  String zipCode;
+  String city;
+  String state;
   String language;
   bool notificationsEnabled;
 
   final FirebaseDataConnect _dataConnect;
-  CompleteOnboardingVariablesBuilder(this._dataConnect, {required  this.email,required  this.region,required  this.language,required  this.notificationsEnabled,});
+  CompleteOnboardingVariablesBuilder(this._dataConnect, {required  this.email,required  this.zipCode,required  this.city,required  this.state,required  this.language,required  this.notificationsEnabled,});
   Deserializer<CompleteOnboardingData> dataDeserializer = (dynamic json)  => CompleteOnboardingData.fromJson(jsonDecode(json));
   Serializer<CompleteOnboardingVariables> varsSerializer = (CompleteOnboardingVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<CompleteOnboardingData, CompleteOnboardingVariables>> execute() {
@@ -15,7 +17,7 @@ class CompleteOnboardingVariablesBuilder {
   }
 
   MutationRef<CompleteOnboardingData, CompleteOnboardingVariables> ref() {
-    CompleteOnboardingVariables vars= CompleteOnboardingVariables(email: email,region: region,language: language,notificationsEnabled: notificationsEnabled,);
+    CompleteOnboardingVariables vars= CompleteOnboardingVariables(email: email,zipCode: zipCode,city: city,state: state,language: language,notificationsEnabled: notificationsEnabled,);
     return _dataConnect.mutation("CompleteOnboarding", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -91,14 +93,18 @@ class CompleteOnboardingData {
 @immutable
 class CompleteOnboardingVariables {
   final String email;
-  final String region;
+  final String zipCode;
+  final String city;
+  final String state;
   final String language;
   final bool notificationsEnabled;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   CompleteOnboardingVariables.fromJson(Map<String, dynamic> json):
   
   email = nativeFromJson<String>(json['email']),
-  region = nativeFromJson<String>(json['region']),
+  zipCode = nativeFromJson<String>(json['zipCode']),
+  city = nativeFromJson<String>(json['city']),
+  state = nativeFromJson<String>(json['state']),
   language = nativeFromJson<String>(json['language']),
   notificationsEnabled = nativeFromJson<bool>(json['notificationsEnabled']);
   @override
@@ -112,19 +118,23 @@ class CompleteOnboardingVariables {
 
     final CompleteOnboardingVariables otherTyped = other as CompleteOnboardingVariables;
     return email == otherTyped.email && 
-    region == otherTyped.region && 
+    zipCode == otherTyped.zipCode && 
+    city == otherTyped.city && 
+    state == otherTyped.state && 
     language == otherTyped.language && 
     notificationsEnabled == otherTyped.notificationsEnabled;
     
   }
   @override
-  int get hashCode => Object.hashAll([email.hashCode, region.hashCode, language.hashCode, notificationsEnabled.hashCode]);
+  int get hashCode => Object.hashAll([email.hashCode, zipCode.hashCode, city.hashCode, state.hashCode, language.hashCode, notificationsEnabled.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['email'] = nativeToJson<String>(email);
-    json['region'] = nativeToJson<String>(region);
+    json['zipCode'] = nativeToJson<String>(zipCode);
+    json['city'] = nativeToJson<String>(city);
+    json['state'] = nativeToJson<String>(state);
     json['language'] = nativeToJson<String>(language);
     json['notificationsEnabled'] = nativeToJson<bool>(notificationsEnabled);
     return json;
@@ -132,7 +142,9 @@ class CompleteOnboardingVariables {
 
   CompleteOnboardingVariables({
     required this.email,
-    required this.region,
+    required this.zipCode,
+    required this.city,
+    required this.state,
     required this.language,
     required this.notificationsEnabled,
   });

@@ -6,21 +6,25 @@ import 'package:flutter/foundation.dart';
 
 part 'create_survey.dart';
 
-part 'get_survey.dart';
+part 'get_survey_by_id.dart';
 
 part 'list_surveys.dart';
 
 part 'register_user_device.dart';
 
-part 'list_user_devices_by_user.dart';
+part 'list_my_user_devices.dart';
 
 part 'create_survey_delivery.dart';
 
-part 'list_survey_deliveries_by_survey.dart';
+part 'list_survey_responses_by_survey.dart';
+
+part 'mark_survey_delivery_opened.dart';
 
 part 'submit_survey_response.dart';
 
-part 'list_survey_responses_by_survey.dart';
+part 'mark_survey_delivery_answered.dart';
+
+part 'get_my_survey_response_by_delivery.dart';
 
 part 'get_current_user.dart';
 
@@ -228,8 +232,8 @@ class AppConnector {
   }
   
   
-  GetSurveyVariablesBuilder getSurvey ({required String id, }) {
-    return GetSurveyVariablesBuilder(dataConnect, id: id,);
+  GetSurveyByIdVariablesBuilder getSurveyById ({required String id, }) {
+    return GetSurveyByIdVariablesBuilder(dataConnect, id: id,);
   }
   
   
@@ -238,13 +242,13 @@ class AppConnector {
   }
   
   
-  RegisterUserDeviceVariablesBuilder registerUserDevice ({required String id, required String userId, required String fcmToken, required DevicePlatform platform, required bool notificationsEnabled, }) {
-    return RegisterUserDeviceVariablesBuilder(dataConnect, id: id,userId: userId,fcmToken: fcmToken,platform: platform,notificationsEnabled: notificationsEnabled,);
+  RegisterUserDeviceVariablesBuilder registerUserDevice ({required String id, required String fcmToken, required DevicePlatform platform, required bool notificationsEnabled, }) {
+    return RegisterUserDeviceVariablesBuilder(dataConnect, id: id,fcmToken: fcmToken,platform: platform,notificationsEnabled: notificationsEnabled,);
   }
   
   
-  ListUserDevicesByUserVariablesBuilder listUserDevicesByUser ({required String userId, }) {
-    return ListUserDevicesByUserVariablesBuilder(dataConnect, userId: userId,);
+  ListMyUserDevicesVariablesBuilder listMyUserDevices () {
+    return ListMyUserDevicesVariablesBuilder(dataConnect, );
   }
   
   
@@ -253,18 +257,28 @@ class AppConnector {
   }
   
   
-  ListSurveyDeliveriesBySurveyVariablesBuilder listSurveyDeliveriesBySurvey ({required String surveyId, }) {
-    return ListSurveyDeliveriesBySurveyVariablesBuilder(dataConnect, surveyId: surveyId,);
-  }
-  
-  
-  SubmitSurveyResponseVariablesBuilder submitSurveyResponse ({required String id, required String surveyId, required String userId, required String deliveryId, required SurveyAnswer answer, }) {
-    return SubmitSurveyResponseVariablesBuilder(dataConnect, id: id,surveyId: surveyId,userId: userId,deliveryId: deliveryId,answer: answer,);
-  }
-  
-  
   ListSurveyResponsesBySurveyVariablesBuilder listSurveyResponsesBySurvey ({required String surveyId, }) {
     return ListSurveyResponsesBySurveyVariablesBuilder(dataConnect, surveyId: surveyId,);
+  }
+  
+  
+  MarkSurveyDeliveryOpenedVariablesBuilder markSurveyDeliveryOpened ({required String deliveryId, }) {
+    return MarkSurveyDeliveryOpenedVariablesBuilder(dataConnect, deliveryId: deliveryId,);
+  }
+  
+  
+  SubmitSurveyResponseVariablesBuilder submitSurveyResponse ({required String id, required String surveyId, required String deliveryId, required SurveyAnswer answer, }) {
+    return SubmitSurveyResponseVariablesBuilder(dataConnect, id: id,surveyId: surveyId,deliveryId: deliveryId,answer: answer,);
+  }
+  
+  
+  MarkSurveyDeliveryAnsweredVariablesBuilder markSurveyDeliveryAnswered ({required String deliveryId, }) {
+    return MarkSurveyDeliveryAnsweredVariablesBuilder(dataConnect, deliveryId: deliveryId,);
+  }
+  
+  
+  GetMySurveyResponseByDeliveryVariablesBuilder getMySurveyResponseByDelivery ({required String deliveryId, }) {
+    return GetMySurveyResponseByDeliveryVariablesBuilder(dataConnect, deliveryId: deliveryId,);
   }
   
   
@@ -278,8 +292,8 @@ class AppConnector {
   }
   
   
-  CompleteOnboardingVariablesBuilder completeOnboarding ({required String email, required String region, required String language, required bool notificationsEnabled, }) {
-    return CompleteOnboardingVariablesBuilder(dataConnect, email: email,region: region,language: language,notificationsEnabled: notificationsEnabled,);
+  CompleteOnboardingVariablesBuilder completeOnboarding ({required String email, required String zipCode, required String city, required String state, required String language, required bool notificationsEnabled, }) {
+    return CompleteOnboardingVariablesBuilder(dataConnect, email: email,zipCode: zipCode,city: city,state: state,language: language,notificationsEnabled: notificationsEnabled,);
   }
   
 

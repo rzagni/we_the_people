@@ -5,7 +5,9 @@ class AppUserRecord {
   final String id;
   final String email;
   final bool profileCompleted;
-  final String? region;
+  final String? zipCode;
+  final String? city;
+  final String? state;
   final String? language;
   final bool notificationsEnabled;
 
@@ -13,7 +15,9 @@ class AppUserRecord {
     required this.id,
     required this.email,
     required this.profileCompleted,
-    this.region,
+    this.zipCode,
+    this.city,
+    this.state,
     this.language,
     required this.notificationsEnabled,
   });
@@ -37,33 +41,46 @@ class UserRepository {
       id: user.id,
       email: user.email,
       profileCompleted: user.profileCompleted,
-      region: user.region,
+      zipCode: user.zipCode,
+      city: user.city,
+      state: user.state,
       language: user.language,
       notificationsEnabled: user.notificationsEnabled,
     );
   }
 
-  Future<AppUserRecord> upsertCurrentUser({required String email}) async {
-    await _connector.upsertCurrentUser(email: email).execute();
-
-    final user = await getCurrentUserRecord();
-    if (user == null) {
-      throw Exception('Failed to load current user after upsert.');
+  Future<AppUserRecord> createCurrentUserIfMissing({
+    required String email,
+  }) async {
+    final existingUser = await getCurrentUserRecord();
+    if (existingUser != null) {
+      return existingUser;
     }
 
-    return user;
+    await _connector.upsertCurrentUser(email: email).execute();
+
+    final createdUser = await getCurrentUserRecord();
+    if (createdUser == null) {
+      throw Exception('Failed to load current user after creation.');
+    }
+
+    return createdUser;
   }
 
   Future<void> completeOnboarding({
     required String email,
-    required String region,
+    required String zipCode,
+    required String city,
+    required String state,
     required String language,
     required bool notificationsEnabled,
   }) async {
     await _connector
         .completeOnboarding(
           email: email,
-          region: region,
+          zipCode: zipCode,
+          city: city,
+          state: state,
           language: language,
           notificationsEnabled: notificationsEnabled,
         )

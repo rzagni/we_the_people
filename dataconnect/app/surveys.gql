@@ -6,7 +6,10 @@ mutation CreateSurvey(
     $language: String
     $region: String
     $topic: String
-) @auth(level: USER) {
+) @auth(
+    level: USER
+    insecureReason: "POC: survey creation is temporarily allowed from authenticated clients while admin flows are not yet separated."
+) {
     survey_insert(
         data: {
             id: $id
@@ -20,7 +23,10 @@ mutation CreateSurvey(
     )
 }
 
-query GetSurvey($id: String!) @auth(level: USER) {
+query GetSurveyById($id: String!) @auth(
+    level: USER
+    insecureReason: "POC: any signed-in user may read a survey by id from the mobile app."
+) {
     surveys(where: { id: { eq: $id } }) {
         id
         question
@@ -32,7 +38,10 @@ query GetSurvey($id: String!) @auth(level: USER) {
     }
 }
 
-query ListSurveys @auth(level: USER) {
+query ListSurveys @auth(
+    level: USER
+    insecureReason: "POC: authenticated users may list surveys while the admin surface is still under construction."
+) {
     surveys {
         id
         question
@@ -46,7 +55,6 @@ query ListSurveys @auth(level: USER) {
 
 mutation RegisterUserDevice(
     $id: String!
-    $userId: String!
     $fcmToken: String!
     $platform: DevicePlatform!
     $notificationsEnabled: Boolean!
@@ -54,7 +62,7 @@ mutation RegisterUserDevice(
     userDevice_upsert(
         data: {
             id: $id
-            userId: $userId
+            userId_expr: "auth.uid"
             fcmToken: $fcmToken
             platform: $platform
             notificationsEnabled: $notificationsEnabled
@@ -62,8 +70,8 @@ mutation RegisterUserDevice(
     )
 }
 
-query ListUserDevicesByUser($userId: String!) @auth(level: USER) {
-    userDevices(where: { userId: { eq: $userId } }) {
+query ListMyUserDevices @auth(level: USER) {
+    userDevices(where: { userId: { eq_expr: "auth.uid" } }) {
         id
         userId
         fcmToken
@@ -78,7 +86,10 @@ mutation CreateSurveyDelivery(
     $userId: String!
     $deviceId: String!
     $status: DeliveryStatus!
-) @auth(level: USER) {
+) @auth(
+    level: USER
+    insecureReason: "POC: survey deliveries are created from trusted manual flows before a dedicated admin backend is added."
+) {
     surveyDelivery_insert(
         data: {
             id: $id
@@ -90,20 +101,34 @@ mutation CreateSurveyDelivery(
     )
 }
 
-query ListSurveyDeliveriesBySurvey($surveyId: String!) @auth(level: USER) {
-    surveyDeliveries(where: { surveyId: { eq: $surveyId } }) {
+query ListSurveyResponsesBySurvey($surveyId: String!) @auth(
+    level: USER
+    insecureReason: "POC: authenticated users may inspect survey responses during early testing before admin-only access is enforced."
+) {
+    surveyResponses(where: { surveyId: { eq: $surveyId } }) {
         id
         surveyId
         userId
-        deviceId
-        status
+        deliveryId
+        answer
     }
+}
+
+mutation MarkSurveyDeliveryOpened($deliveryId: String!) @auth(
+    level: USER
+    insecureReason: "POC: client updates delivery status by delivery id after opening a survey."
+) {
+    surveyDelivery_update(
+        key: { id: $deliveryId }
+        data: {
+            status: OPENED
+        }
+    )
 }
 
 mutation SubmitSurveyResponse(
     $id: String!
     $surveyId: String!
-    $userId: String!
     $deliveryId: String!
     $answer: SurveyAnswer!
 ) @auth(level: USER) {
@@ -111,15 +136,32 @@ mutation SubmitSurveyResponse(
         data: {
             id: $id
             surveyId: $surveyId
-            userId: $userId
             deliveryId: $deliveryId
+            userId_expr: "auth.uid"
             answer: $answer
         }
     )
 }
 
-query ListSurveyResponsesBySurvey($surveyId: String!) @auth(level: USER) {
-    surveyResponses(where: { surveyId: { eq: $surveyId } }) {
+mutation MarkSurveyDeliveryAnswered($deliveryId: String!) @auth(
+    level: USER
+    insecureReason: "POC: client updates delivery status by delivery id after submitting an answer."
+) {
+    surveyDelivery_update(
+        key: { id: $deliveryId }
+        data: {
+            status: ANSWERED
+        }
+    )
+}
+
+query GetMySurveyResponseByDelivery($deliveryId: String!) @auth(level: USER) {
+    surveyResponses(
+        where: {
+            deliveryId: { eq: $deliveryId }
+            userId: { eq_expr: "auth.uid" }
+        }
+    ) {
         id
         surveyId
         userId
