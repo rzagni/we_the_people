@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:we_the_people/providers/auth_provider.dart';
 import 'package:we_the_people/providers/preferences_provider.dart';
@@ -21,6 +22,9 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             onPressed: () async {
               await context.read<AuthProvider>().signOut();
+              if (context.mounted) {
+                context.go('/login');
+              }
             },
             icon: const Icon(Icons.logout),
           ),

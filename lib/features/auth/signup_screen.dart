@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
 import 'package:we_the_people/providers/auth_provider.dart';
+import 'package:we_the_people/repositories/user_repository.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -16,6 +17,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  String? _screenError;
 
   @override
   void dispose() {
@@ -26,9 +28,15 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _submit() async {
+    setState(() {
+      _screenError = null;
+    });
+
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
+    final userRepository = context.read<UserRepository>();
+
     await authProvider.signUp(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -37,7 +45,24 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!mounted) return;
 
     if (authProvider.errorMessage == null && authProvider.currentUser != null) {
-      context.go('/onboarding');
+      try {
+        final userRecord = await userRepository.upsertCurrentUser(
+          email: _emailController.text.trim(),
+        );
+
+        if (!mounted) return;
+
+        if (userRecord.profileCompleted) {
+          context.go('/home');
+        } else {
+          context.go('/onboarding');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _screenError = 'Failed to create your profile. Please try again.';
+        });
+      }
     }
   }
 
@@ -84,6 +109,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     authProvider.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              if (_screenError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    _screenError!,
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),

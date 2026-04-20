@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
 import 'package:we_the_people/providers/auth_provider.dart';
+import 'package:we_the_people/repositories/user_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _screenError;
 
   @override
   void dispose() {
@@ -24,9 +26,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    setState(() {
+      _screenError = null;
+    });
+
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
+    final userRepository = context.read<UserRepository>();
+
     await authProvider.signIn(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -35,7 +43,24 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (authProvider.errorMessage == null && authProvider.currentUser != null) {
-      context.go('/onboarding');
+      try {
+        final userRecord = await userRepository.upsertCurrentUser(
+          email: _emailController.text.trim(),
+        );
+
+        if (!mounted) return;
+
+        if (userRecord.profileCompleted) {
+          context.go('/home');
+        } else {
+          context.go('/onboarding');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _screenError = 'Failed to load your profile. Please try again.';
+        });
+      }
     }
   }
 
@@ -69,6 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     authProvider.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              if (_screenError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    _screenError!,
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),

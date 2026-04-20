@@ -1,5 +1,8 @@
-connectorId: "app"
+connectorId: app
 generate:
   dartSdk:
-    outputDir: "../lib/dataconnect-generated"
-    package: "dataconnect_generated"
+    - outputDir: ../lib/dataconnect-generated
+      package: dataconnect_generated
+    - outputDir: ../../lib/dataconnect_generated
+      package: dataconnect_generated/generated.dart
+      clientCache: {}

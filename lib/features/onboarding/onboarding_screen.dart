@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:we_the_people/core/validators/app_validators.dart';
+import 'package:we_the_people/providers/auth_provider.dart';
 import 'package:we_the_people/providers/preferences_provider.dart';
+import 'package:we_the_people/repositories/user_repository.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -18,6 +20,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final Set<String> _selectedTopics = <String>{};
   bool _notificationsEnabled = true;
+  bool _isSaving = false;
+  String? _screenError;
 
   static const List<String> _availableTopics = <String>[
     'Politics',
@@ -43,16 +47,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    setState(() {
+      _screenError = null;
+    });
+
     if (!_formKey.currentState!.validate()) return;
 
+    final authProvider = context.read<AuthProvider>();
     final preferencesProvider = context.read<PreferencesProvider>();
-    preferencesProvider.updateRegion(_regionController.text.trim());
-    preferencesProvider.updateLanguage(_languageController.text.trim());
-    preferencesProvider.updateTopics(_selectedTopics.toList());
-    preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
+    final userRepository = context.read<UserRepository>();
 
-    context.go('/home');
+    final email = authProvider.currentUser?.email;
+    if (email == null || email.isEmpty) {
+      setState(() {
+        _screenError = 'No authenticated user email found.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      preferencesProvider.updateRegion(_regionController.text.trim());
+      preferencesProvider.updateLanguage(_languageController.text.trim());
+      preferencesProvider.updateTopics(_selectedTopics.toList());
+      preferencesProvider.updateNotificationsEnabled(_notificationsEnabled);
+
+      await userRepository.completeOnboarding(
+        email: email,
+        region: _regionController.text.trim(),
+        language: _languageController.text.trim(),
+        notificationsEnabled: _notificationsEnabled,
+      );
+
+      if (!mounted) return;
+      context.go('/home');
+    } catch (e) {
+      setState(() {
+        _screenError = 'Failed to save onboarding. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -132,15 +175,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                if (_screenError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      _screenError!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submit,
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 14),
-                      child: Text('Continue'),
-                    ),
+                    onPressed: _isSaving ? null : _submit,
+                    child:
+                        _isSaving
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Text('Continue'),
+                            ),
                   ),
                 ),
               ],

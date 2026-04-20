@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import 'package:we_the_people/providers/auth_provider.dart';
+import 'package:we_the_people/repositories/user_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,14 +15,37 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = context.read<AuthProvider>();
-      final user = authProvider.currentUser;
+      final userRepository = context.read<UserRepository>();
+      final firebaseUser = authProvider.currentUser;
 
-      if (user == null) {
+      if (firebaseUser == null) {
+        if (!mounted) return;
         context.go('/login');
-      } else {
-        context.go('/onboarding');
+        return;
+      }
+
+      final email = firebaseUser.email;
+      if (email == null || email.isEmpty) {
+        if (!mounted) return;
+        context.go('/login');
+        return;
+      }
+
+      try {
+        final userRecord = await userRepository.upsertCurrentUser(email: email);
+
+        if (!mounted) return;
+
+        if (userRecord.profileCompleted) {
+          context.go('/home');
+        } else {
+          context.go('/onboarding');
+        }
+      } catch (_) {
+        if (!mounted) return;
+        context.go('/login');
       }
     });
   }
