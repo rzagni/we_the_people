@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:we_the_people_mobile/app/app.dart';
 import 'package:we_the_people_mobile/app/router.dart';
 import 'package:shared_services/dataconnect_generated/app.dart';
+import 'package:shared_services/repositories/device_repository.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -124,14 +125,12 @@ class NotificationService {
 
     final deviceId = '${firebaseUser.uid}_${_platformName()}';
 
-    await AppConnector.instance
-        .registerUserDevice(
-          id: deviceId,
-          fcmToken: token,
-          platform: _platformEnum(),
-          notificationsEnabled: true,
-        )
-        .execute();
+    await DeviceRepository().registerUserDevice(
+      id: deviceId,
+      fcmToken: token,
+      platform: _platformEnum(),
+      notificationsEnabled: true,
+    );
 
     debugPrint('Device registered in Data Connect.');
   }

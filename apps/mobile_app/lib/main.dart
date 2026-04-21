@@ -5,6 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_services/repositories/auth_repository.dart';
 import 'package:shared_services/repositories/preferences_repository.dart';
 import 'package:shared_services/repositories/user_repository.dart';
+import 'package:shared_services/repositories/device_repository.dart';
+import 'package:shared_services/repositories/survey_delivery_repository.dart';
+import 'package:shared_services/repositories/survey_repository.dart';
+import 'package:shared_services/repositories/survey_response_repository.dart';
 import 'package:we_the_people_mobile/app/app.dart';
 import 'package:we_the_people_mobile/firebase_options.dart';
 import 'package:we_the_people_mobile/providers/auth_provider.dart';
@@ -34,6 +38,14 @@ class Bootstrap extends StatelessWidget {
         Provider<AuthRepository>(create: (_) => AuthRepository()),
         Provider<UserRepository>(create: (_) => UserRepository()),
         Provider<PreferencesRepository>(create: (_) => PreferencesRepository()),
+        Provider<DeviceRepository>(create: (_) => DeviceRepository()),
+        Provider<SurveyRepository>(create: (_) => SurveyRepository()),
+        Provider<SurveyDeliveryRepository>(
+          create: (_) => SurveyDeliveryRepository(),
+        ),
+        Provider<SurveyResponseRepository>(
+          create: (_) => SurveyResponseRepository(),
+        ),
         ChangeNotifierProvider<AuthProvider>(
           create:
               (context) =>
